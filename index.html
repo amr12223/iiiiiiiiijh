@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آلة حاسبة</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+        }
+
+        .calculator {
+            width: 390px;
+            height: 100vh;
+            background-color: #000000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .calculator .display {
+            background-color: #0000ff;
+            color: white;
+            font-size: 48px;
+            text-align: right;
+            padding: 13px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .top-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            background-color: #000000;
+            padding: 5px;
+        }
+
+        .top-button {
+            padding: 9px;
+            font-size: 13px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            background-color: #333333;
+            color: white;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+
+        .top-button:hover {
+            background-color: #444444;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            background-color: #ffffff;
+            height: calc(100vh - 230px);
+        }
+
+        .button {
+            padding: 24px;
+            font-size: 28px;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            background-color: #ffffff;
+            color: black;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .button.operation {
+            background-color: #b0bec5;
+            color: black;
+        }
+
+        .button.operation:hover {
+            background-color: #90a4ae;
+        }
+
+        .button.clear {
+            background-color: #000000;
+            color: white;
+        }
+
+        .button.clear:hover {
+            background-color: #333333;
+        }
+
+        .button.equal {
+            background-color: #000000;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .button.equal:hover {
+            background-color: #333333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <div class="top-buttons">
+        <button class="top-button" onclick="viewHistory()"> سجل التاريخ </button>
+        <button class="top-button" onclick="complexEquations()">المعادلات المعقدة</button>
+        <button class="top-button" onclick="graphing()">الرسم البياني</button>
+        <button class="top-button" onclick="unitConversion()">تحويل الوحدات</button>
+        <button class="top-button" onclick="changeLanguage()">اللغة تحويل </button>
+    </div>
+
+    <div class="display" id="display">0</div>
+    <div class="buttons">
+        <button class="button clear" onclick="clearDisplay()">AC</button>
+        <button class="button operation" onclick="append('%')">%</button>
+        <button class="button operation" onclick="toggleSign()">+/-</button>
+        <button class="button operation" onclick="append('/')">÷</button>
+        
+        <button class="button" onclick="append('7')">7</button>
+        <button class="button" onclick="append('8')">8</button>
+        <button class="button" onclick="append('9')">9</button>
+        <button class="button operation" onclick="append('*')">×</button>
+        
+        <button class="button" onclick="append('4')">4</button>
+        <button class="button" onclick="append('5')">5</button>
+        <button class="button" onclick="append('6')">6</button>
+        <button class="button operation" onclick="append('-')">-</button>
+        
+        <button class="button" onclick="append('1')">1</button>
+        <button class="button" onclick="append('2')">2</button>
+        <button class="button" onclick="append('3')">3</button>
+        <button class="button operation" onclick="append('+')">+</button>
+        
+        <button class="button" onclick="append('0')">0</button>
+        <button class="button" onclick="append('.')">.</button>
+        <button class="button equal" onclick="calculate()">=</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjs@11.5.0/dist/math.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/convert-units@2.3.0/convert-units.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const display = document.getElementById('display');
+    let history = [];
+    let isArabic = true;
+
+    function append(value) {
+        if (display.innerText === "0") {
+            display.innerText = value;
+        } else {
+            display.innerText += value;
+        }
+    }
+
+    function clearDisplay() {
+        display.innerText = "0";
+    }
+
+    function calculate() {
+        try {
+            const result = eval(display.innerText.replace('×', '*').replace('÷', '/'));
+            display.innerText = result;
+            history.push(display.innerText);
+        } catch {
+            display.innerText = "خطأ";
+        }
+    }
+
+    function toggleSign() {
+        if (display.innerText[0] === '-') {
+            display.innerText = display.innerText.slice(1);
+        } else if (display.innerText !== "0") {
+            display.innerText = '-' + display.innerText;
+        }
+    }
+
+    function viewHistory() {
+        if (history.length === 0) {
+            alert(isArabic ? "لا توجد عمليات سابقة" : "No previous operations");
+        } else {
+            alert(isArabic ? "التاريخ: \n" + history.join("\n") : "History: \n" + history.join("\n"));
+        }
+    }
+
+    function complexEquations() {
+        const equation = prompt(isArabic ? "أدخل المعادلة الرياضية:" : "Enter the mathematical equation:");
+        try {
+            const result = math.evaluate(equation);
+            display.innerText = result;
+        } catch {
+            display.innerText = isArabic ? "خطأ في المعادلة" : "Error in the equation";
+        }
+    }
+
+    function unitConversion() {
+        const fromUnit = prompt(isArabic ? "أدخل الوحدة الأصلية (مثال: متر):" : "Enter the original unit (e.g., meter):");
+        const toUnit = prompt(isArabic ? "أدخل الوحدة الهدف (مثال: كيلو متر):" : "Enter the target unit (e.g., kilometer):");
+        const value = parseFloat(prompt(isArabic ? "أدخل القيمة للتحويل:" : "Enter the value to convert:"));
+        
+        try {
+            const result = convert(value).from(fromUnit).to(toUnit);
+            display.innerText = result;
+        } catch {
+            display.innerText = isArabic ? "خطأ في التحويل" : "Conversion error";
+        }
+    }
+
+    function graphing() {
+        const ctx = document.createElement('canvas').getContext('2d');
+        document.body.appendChild(ctx.canvas);
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: isArabic ? 'مثال على رسم بياني' : 'Example of a Graph',
+                    data: [1, 2, 3, 4, 5],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            }
+        });
+    }
+
+    function changeLanguage() {
+        isArabic = !isArabic;
+        const topButtons = document.querySelectorAll('.top-button');
+        const buttonLabels = isArabic ? 
+            ['التاريخ', 'المعادلات المعقدة', 'الرسم البياني', 'تحويل الوحدات', 'اللغة'] :
+            ['History', 'Complex Equations', 'Graphing', 'Unit Conversion', 'Language'];
+        
+        topButtons.forEach((button, index) => {
+            button.textContent = buttonLabels[index];
+        });
+    }
+</script>
+
+</body>
+</html>
